@@ -19,11 +19,13 @@ ENV C_INCLUDE_PATH $C_INCLUDE_PATH:$ORACLE/include/oracle/$ORACLE_INSTANTCLIENT_
 ENV PATH $PATH:$ORACLE_HOME/bin
 ENV TNS_ADMIN $ORACLE_HOME/network/admin
 
-RUN yum update && yum install -y libaio1 \
-	&& yum install -y libaio1 cpio \
+RUN    yum update -y --nogpgcheck; yum clean all \
+	&& yum install -y libaio1 cpio --nogpgcheck; yum clean all \	
 	&& mkdir $ORACLE && TMP_DIR="$(mktemp -d)" && cd "$TMP_DIR" \
 	&& curl -L -k https://github.com/kylebrockmann/oracle-instant-client-docker/raw/assets/oracle-instantclient12.2-basic-12.2.0.1.0-1.x86_64.rpm -o basic.rpm \
     && curl -L -k https://github.com/kylebrockmann/oracle-instant-client-docker/raw/assets/oracle-instantclient12.2-devel-12.2.0.1.0-1.x86_64.rpm -o devel.rpm \
-    && yum localinstall oracle* --nogpgcheck
+    && yum localinstall basic.rpm --nogpgcheck -y; yum clean all \
+	&& yum localinstall devel.rpm --nogpgcheck -y; yum clean all \
+	&& rm -f basic.rpm devel.rpm \
 	&& mkdir $ORACLE/lib/oracle/12.1/client64/network/admin -p
    
